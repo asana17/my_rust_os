@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 #![feature(custom_test_frameworks)]
+#![feature(naked_functions)]
 #![test_runner(blog_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
@@ -14,11 +15,11 @@ pub extern "C" fn _start() -> ! {
     blog_os::init();
 
     //x86_64::instructions::interrupts::int3();
+    blog_os::divide_by_zero();
 
     #[cfg(test)]
     test_main();
 
-    blog_os::divide_by_zero();
     println!("It did not crash!");
     loop {}
 }

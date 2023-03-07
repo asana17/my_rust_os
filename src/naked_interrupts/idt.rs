@@ -1,4 +1,5 @@
-use x86_64::instructions::segmentation;
+use x86_64::instructions::segmentation::{CS, Segment};
+
 use x86_64::structures::gdt::SegmentSelector;
 use x86_64::PrivilegeLevel;
 
@@ -12,7 +13,7 @@ impl Idt {
     }
 
     pub fn set_handler(&mut self, entry: u8, handler: HandlerFunc) {
-        self.0[entry as usize] = Entry::new(segmentation::cs(), handler);
+        self.0[entry as usize] = Entry::new(CS::get_reg(), handler);
     }
 
     pub fn load(&'static self) {

@@ -9,7 +9,7 @@ bit_field = "0.10.2"
 bootloader = "0.9.23"
 volatile = "0.2.6"
 spin = "0.5.2"
-x86_64 = "0.14.2"
+x86_64 = "0.14.10"
 uart_16550 = "0.2.0"
 
 [dependencies.lazy_static]

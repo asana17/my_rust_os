@@ -6,6 +6,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 use blog_os::println;
+//use core::arch::asm;
 use core::panic::PanicInfo;
 
 #[no_mangle]
@@ -15,7 +16,9 @@ pub extern "C" fn _start() -> ! {
     blog_os::init();
 
     //x86_64::instructions::interrupts::int3();
-    blog_os::divide_by_zero();
+    //blog_os::divide_by_zero();
+    //unsafe {asm!("ud2")};
+    unsafe {*(0xdeadbeaf as *mut u64) = 42};
 
     #[cfg(test)]
     test_main();

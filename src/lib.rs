@@ -10,7 +10,7 @@ use core::panic::PanicInfo;
 use core::arch::asm;
 
 pub mod interrupts;
-pub mod naked_interrupts;
+//pub mod naked_interrupts;
 pub mod serial;
 pub mod vga_buffer;
 
@@ -79,13 +79,12 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 }
 
 pub fn init() {
-    //interrupts::init_idt();
-    naked_interrupts::init();
+    interrupts::init_idt();
+    //naked_interrupts::init();
 }
 
 pub fn divide_by_zero() {
     unsafe {
-        //asm!("mov dx, 0; div dx":::"ax","dx":"volatile","intel")
         asm!("mov dx, 0", "div dx")
     }
 }

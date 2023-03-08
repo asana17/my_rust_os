@@ -7,6 +7,5 @@ This OS is based on [blog_os](https://os.phil-opp.com).
 objdump -m i386:x86-64 -b binary -D target/x86_64-blog_os/debug/bootimage-blog_os.b
 in > objdump.txt
 ```
-start address offset: 0x1f2e00  
-if exception at 0x203ef7
-look at 110f7
+start address offset: `0x1f2e00`  
+ex. if exception at `0x203ef7` in QEMU, look at `110f7` in objdump result

@@ -10,13 +10,14 @@ use core::panic::PanicInfo;
 use core::arch::asm;
 
 pub mod interrupts;
+pub mod memory;
 //pub mod naked_interrupts;
 pub mod serial;
 pub mod vga_buffer;
 pub mod gdt;
 
 pub trait Testable {
-    fn run(&self) -> ();
+    fn run(&self) ;
 }
 
 impl<T> Testable for T
@@ -49,8 +50,13 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 }
 
 #[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+use bootloader::{entry_point, BootInfo};
+
+#[cfg(test)]
+entry_point!(test_kernel_main);
+
+#[cfg(test)]
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
     init();
     test_main();
 

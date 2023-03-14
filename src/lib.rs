@@ -3,12 +3,16 @@
 #![feature(custom_test_frameworks)]
 #![feature(naked_functions)]
 #![feature(abi_x86_interrupt)]
+#![feature(alloc_error_handler)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+
+extern crate alloc;
 use core::panic::PanicInfo;
 use core::arch::asm;
 
+pub mod allocator;
 pub mod interrupts;
 pub mod memory;
 //pub mod naked_interrupts;
@@ -103,4 +107,9 @@ pub fn divide_by_zero() {
     unsafe {
         asm!("mov dx, 0", "div dx")
     }
+}
+
+#[alloc_error_handler]
+fn alloc_error_handler(layout: alloc::alloc::Layout) -> ! {
+    panic!("allocation error: {:?}", layout)
 }

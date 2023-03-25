@@ -1,8 +1,9 @@
 use bootloader::bootinfo::{MemoryMap, MemoryRegionType};
 use x86_64::{
-    PhysAddr,
-    structures::paging::{Page, PageTable, PhysFrame, Mapper, Size4KiB, FrameAllocator, OffsetPageTable},
-    VirtAddr,
+    structures::paging::{
+        FrameAllocator, Mapper, OffsetPageTable, Page, PageTable, PhysFrame, Size4KiB,
+    },
+    PhysAddr, VirtAddr,
 };
 
 unsafe fn active_level_4_table(physical_memory_offset: VirtAddr) -> &'static mut PageTable {
@@ -48,13 +49,23 @@ fn translate_addr_inner(addr: VirtAddr, physical_memory_offset: VirtAddr)-> Opti
 
     Some(frame.start_address() + u64::from(addr.page_offset()))
 }*/
-
+/// Initialize a new OffsetPageTable.
+///
+/// # Safety
+/// This function is unsafe because the caller must guarantee that the
+/// complete physical memory is mapped to virtual memory at the passed
+/// `physical_memory_offset`. Also, this function must be only called once
+/// to avoid aliasing `&mut` references (which is undefined behavior).
 pub unsafe fn init(physical_memory_offset: VirtAddr) -> OffsetPageTable<'static> {
     let level_4_table = active_level_4_table(physical_memory_offset);
     OffsetPageTable::new(level_4_table, physical_memory_offset)
 }
 
-pub fn create_example_mapping(page: Page, mapper: &mut OffsetPageTable, frame_allocator: &mut impl FrameAllocator<Size4KiB>,) {
+pub fn create_example_mapping(
+    page: Page,
+    mapper: &mut OffsetPageTable,
+    frame_allocator: &mut impl FrameAllocator<Size4KiB>,
+) {
     use x86_64::structures::paging::PageTableFlags as Flags;
 
     let frame = PhysFrame::containing_address(PhysAddr::new(0xb8000));
@@ -81,8 +92,8 @@ pub struct BootInfoFrameAllocator {
 }
 
 impl BootInfoFrameAllocator {
-    /// SAFTY
     ///
+    /// # Safety
     /// The Caller should ensure memory mapping is valid.
     /// Especially, `USABLE` frame should be really unused.
     pub unsafe fn init(memory_map: &'static MemoryMap) -> Self {
@@ -93,10 +104,8 @@ impl BootInfoFrameAllocator {
     }
     fn usable_frames(&self) -> impl Iterator<Item = PhysFrame> {
         let regions = self.memory_map.iter();
-        let usable_regions = regions
-            .filter(|r| r.region_type == MemoryRegionType::Usable);
-        let addr_ranges = usable_regions
-            .map(|r| r.range.start_addr()..r.range.end_addr());
+        let usable_regions = regions.filter(|r| r.region_type == MemoryRegionType::Usable);
+        let addr_ranges = usable_regions.map(|r| r.range.start_addr()..r.range.end_addr());
         let frame_addresses = addr_ranges.flat_map(|r| r.step_by(4096));
         frame_addresses.map(|addr| PhysFrame::containing_address(PhysAddr::new(addr)))
     }

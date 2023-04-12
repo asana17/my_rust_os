@@ -6,8 +6,9 @@
 #![reexport_test_harness_main = "test_main"]
 
 extern crate alloc;
-use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
+//use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use blog_os::println;
+use blog_os::task::{executor::Executor, keyboard, Task};
 use bootloader::{entry_point, BootInfo};
 //use core::arch::asm;
 use core::panic::PanicInfo;
@@ -28,27 +29,28 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
     allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
-    println!("check heap");
-    let heap_value = Box::new(41);
-    println!("heap_value at {:p}", heap_value);
 
-    let mut vec = Vec::new();
-    for i in 0..500 {
-        vec.push(i);
-    }
-    println!("vec at {:p}", vec.as_slice());
+    /*     println!("check heap"); */
+    /* let heap_value = Box::new(41); */
+    /* println!("heap_value at {:p}", heap_value); */
 
-    let reference_counted = Rc::new(vec![1, 2, 3]);
-    let cloned_reference = reference_counted.clone();
-    println!(
-        "current reference count is {}",
-        Rc::strong_count(&cloned_reference)
-    );
-    core::mem::drop(reference_counted);
-    println!(
-        "reference count is {} now",
-        Rc::strong_count(&cloned_reference)
-    );
+    /* let mut vec = Vec::new(); */
+    /* for i in 0..500 { */
+    /*     vec.push(i); */
+    /* } */
+    /* println!("vec at {:p}", vec.as_slice()); */
+
+    /* let reference_counted = Rc::new(vec![1, 2, 3]); */
+    /* let cloned_reference = reference_counted.clone(); */
+    /* println!( */
+    /*     "current reference count is {}", */
+    /*     Rc::strong_count(&cloned_reference) */
+    /* ); */
+    /* core::mem::drop(reference_counted); */
+    /* println!( */
+    /*     "reference count is {} now", */
+    /*     Rc::strong_count(&cloned_reference) */
+    /* ); */
 
     /*let page = Page::containing_address(VirtAddr::new(0xdeadbeaf000));
     memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
@@ -58,8 +60,19 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     #[cfg(test)]
     test_main();
 
-    println!("It did not crash!");
-    blog_os::hlt_loop();
+    let mut executor = Executor::new();
+    executor.spawn(Task::new(example_task()));
+    executor.spawn(Task::new(keyboard::print_keypresses()));
+    executor.run();
+}
+
+async fn async_number() -> u32 {
+    42
+}
+
+async fn example_task() {
+    let number = async_number().await;
+    println!("async_number: {}", number);
 }
 
 #[cfg(not(test))]

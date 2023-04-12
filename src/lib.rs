@@ -18,6 +18,7 @@ pub mod memory;
 //pub mod naked_interrupts;
 pub mod gdt;
 pub mod serial;
+pub mod task;
 pub mod vga_buffer;
 
 pub trait Testable {

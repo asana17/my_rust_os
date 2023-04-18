@@ -1,4 +1,5 @@
 /target
 /OVMF*
 /*.img
+/mnt
 /bootloader/target

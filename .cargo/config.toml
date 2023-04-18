@@ -15,4 +15,4 @@ build-std = ["core", "compiler_builtins", "alloc"]
 build-std-features = ["compiler-builtins-mem"]
 
 [build]
-target = "x86_64-blog_os.json"
+target = "x86_64-my_rust_os.json"

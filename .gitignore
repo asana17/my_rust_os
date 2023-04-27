@@ -3,3 +3,5 @@
 /*.img
 /mnt
 /bootloader/target
+/kernel/target
+/kernel/*.elf
